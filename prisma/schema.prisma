@@ -1,0 +1,263 @@
+// LinkMeApp — digital operating system for Kenya's informal economy
+// Worker profiles (LinkedIn) + gig marketplace (Uber) + M-Pesa payments
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PrimaryRole {
+  WORKER
+  CLIENT
+}
+
+enum OtpChannel {
+  PHONE
+  EMAIL
+}
+
+enum VerificationStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum Availability {
+  AVAILABLE
+  BUSY
+  OFFLINE
+}
+
+enum GigUrgency {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum GigStatus {
+  OPEN
+  BOOKED
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingStatus {
+  REQUESTED
+  ACCEPTED
+  DECLINED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+enum NotificationType {
+  GIG_NEARBY
+  APPLICATION_RECEIVED
+  APPLICATION_ACCEPTED
+  APPLICATION_DECLINED
+  BOOKING_STARTED
+  BOOKING_COMPLETED
+  NEW_MESSAGE
+}
+
+model User {
+  id             String        @id @default(cuid())
+  phone          String?       @unique
+  email          String?       @unique
+  name           String?
+  primaryRole    PrimaryRole
+  avatarUrl      String?
+  county         String?
+  area           String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  workerProfile  WorkerProfile?
+  gigsPosted     Gig[]         @relation("ClientGigs")
+  bookings       Booking[]     @relation("WorkerBookings")
+  reviewsGiven   Review[]      @relation("ReviewsGiven")
+  reviewsReceived Review[]     @relation("ReviewsReceived")
+  messages       Message[]
+  notifications  Notification[]
+  pushSubscriptions PushSubscription[]
+}
+
+model OtpCode {
+  id         String     @id @default(cuid())
+  identifier String
+  channel    OtpChannel @default(PHONE)
+  code       String
+  expiresAt  DateTime
+  consumed   Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+
+  @@index([identifier, channel])
+}
+
+model WorkerProfile {
+  id              String          @id @default(cuid())
+  userId          String          @unique
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category        String
+  bio             String?
+  skills          String[]        @default([])
+  county          String
+  area            String
+  lat             Float?
+  lng             Float?
+  locationUpdatedAt DateTime?
+  dailyRateKes    Int?
+  hourlyRateKes   Int?
+  experienceYears Int?            @default(0)
+  availability    Availability    @default(AVAILABLE)
+  verified        Boolean         @default(false)
+  verificationStatus VerificationStatus @default(NONE)
+  idImagePath     String?
+  ratingAvg       Float           @default(0)
+  ratingCount     Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  certifications  Certification[]
+
+  @@index([category, county, area])
+}
+
+model Gig {
+  id             String     @id @default(cuid())
+  clientId       String
+  client         User       @relation("ClientGigs", fields: [clientId], references: [id], onDelete: Cascade)
+  title          String
+  category       String
+  description    String
+  county         String
+  area           String
+  lat            Float?
+  lng            Float?
+  budgetKes      Int
+  urgency        GigUrgency @default(MEDIUM)
+  status         GigStatus  @default(OPEN)
+  targetWorkerId String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  bookings       Booking[]
+
+  @@index([category, county, area, status])
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  gigId           String
+  gig             Gig           @relation(fields: [gigId], references: [id], onDelete: Cascade)
+  workerId        String
+  worker          User          @relation("WorkerBookings", fields: [workerId], references: [id], onDelete: Cascade)
+  status          BookingStatus @default(REQUESTED)
+  agreedAmountKes Int
+  requestedAt     DateTime      @default(now())
+  acceptedAt      DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+
+  transaction     Transaction?
+  reviews         Review[]
+  messages        Message[]
+
+  @@index([workerId, status])
+  @@index([gigId])
+}
+
+model Transaction {
+  id                 String            @id @default(cuid())
+  bookingId          String            @unique
+  booking            Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  amountKes          Int
+  phoneNumber        String
+  merchantRequestId  String?
+  checkoutRequestId  String?
+  mpesaReceiptNumber String?
+  status             TransactionStatus @default(PENDING)
+  resultDesc         String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  bookingId  String
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  reviewerId String
+  reviewer   User     @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  revieweeId String
+  reviewee   User     @relation("ReviewsReceived", fields: [revieweeId], references: [id], onDelete: Cascade)
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  @@unique([bookingId, reviewerId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([bookingId, createdAt])
+}
+
+model Certification {
+  id              String        @id @default(cuid())
+  workerProfileId String
+  workerProfile   WorkerProfile @relation(fields: [workerProfileId], references: [id], onDelete: Cascade)
+  title           String
+  institution     String?
+  year            Int?
+  imageUrl        String?
+  createdAt       DateTime      @default(now())
+
+  @@index([workerProfileId])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  entityUrl String
+  gigId     String?
+  bookingId String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, read, createdAt])
+}

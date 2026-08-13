@@ -1,26 +1,205 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffffff;
+  --brand: #dc2626;
+  --brand-bright: #ef4444;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-bright: var(--brand-bright);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes dot-drop-left {
+  0% {
+    transform: translate(0, -220px) rotate(-60deg);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  70% {
+    transform: translate(0, 10px) rotate(8deg);
+  }
+  85% {
+    transform: translate(0, -5px) rotate(-4deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes dot-drop-right {
+  0% {
+    transform: translate(0, -260px) rotate(60deg);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  70% {
+    transform: translate(0, 10px) rotate(-8deg);
+  }
+  85% {
+    transform: translate(0, -5px) rotate(4deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes mark-spin-settle {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  60% {
+    transform: rotate(360deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes link-line-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes wordmark-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.letter-in {
+  display: inline-block;
+  opacity: 0;
+  animation: wordmark-in 0.35s ease-out forwards;
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-18px, 22px) scale(1.08);
+  }
+}
+
+@keyframes float-slow-reverse {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(20px, -16px) scale(1.06);
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes briefcase-lid-open {
+  0% {
+    transform: rotate(0deg);
+  }
+  60% {
+    transform: rotate(-58deg);
+  }
+  100% {
+    transform: rotate(-50deg);
+  }
+}
+
+@keyframes briefcase-papers-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Icon click feedback: a quick squash-and-spring pop, replayed by remounting
+   the element (e.g. key={tapCount}) on every click. */
+@keyframes icon-pop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(0.72);
+  }
+  65% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-icon-pop {
+  animation: icon-pop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badge-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-badge-pop {
+  animation: badge-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-card-in {
+  animation: card-in 0.32s ease-out both;
 }

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 140">
+  <g transform="translate(4,10)">
+    <rect width="120" height="120" rx="27" fill="#dc2626"/>
+    <g transform="scale(0.234375)">
+      <line x1="196" y1="328" x2="328" y2="196" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/>
+      <circle cx="188" cy="336" r="66" fill="#ffffff"/>
+      <circle cx="336" cy="188" r="66" fill="#ffffff"/>
+    </g>
+  </g>
+  <text
+    x="146" y="88"
+    font-family="-apple-system, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+    font-weight="800"
+    font-size="72"
+    letter-spacing="-2.5"
+    fill="#ffffff"
+  >linkmeapp</text>
+</svg>
