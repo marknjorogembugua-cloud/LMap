@@ -9,6 +9,8 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // CLI-only (migrate/generate/studio) — the running app reads DATABASE_URL
+    // directly in src/lib/prisma.ts and never goes through this config.
+    url: process.env["DIRECT_URL"],
   },
 });
