@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   CameraIcon,
   BriefcaseIcon,
-  DocumentPlusIcon,
   ChevronRightIcon,
   ArrowRightStartOnRectangleIcon,
   BanknotesIcon,
@@ -16,6 +15,9 @@ import {
   DocumentTextIcon,
   UserGroupIcon,
   BellAlertIcon,
+  PencilIcon,
+  CheckIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useSession } from "@/lib/use-session";
 import { useTap } from "@/lib/use-tap";
@@ -41,6 +43,11 @@ export default function AccountPage() {
   const [phoneInput, setPhoneInput] = useState("");
   const [savingPhone, setSavingPhone] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [showCooldownNotice, setShowCooldownNotice] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [pushStatus, setPushStatus] = useState<"unknown" | "unsupported" | NotificationPermission>(
@@ -98,6 +105,37 @@ export default function AccountPage() {
       setPhoneError(err instanceof Error ? err.message : "Could not save phone number");
     } finally {
       setSavingPhone(false);
+    }
+  }
+
+  function startEditingName() {
+    if (!user?.canEditName) {
+      setShowCooldownNotice(true);
+      return;
+    }
+    setNameInput(user.name ?? "");
+    setNameError(null);
+    setEditingName(true);
+  }
+
+  async function saveName(e: React.FormEvent) {
+    e.preventDefault();
+    setNameError(null);
+    setSavingName(true);
+    try {
+      const res = await fetch("/api/account/name", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: nameInput }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Could not save name");
+      await refresh();
+      setEditingName(false);
+    } catch (err) {
+      setNameError(err instanceof Error ? err.message : "Could not save name");
+    } finally {
+      setSavingName(false);
     }
   }
 
@@ -183,11 +221,55 @@ export default function AccountPage() {
             onChange={onAvatarSelected}
           />
         </div>
-        <div>
-          <p className="font-bold text-lg text-white">{user.name ?? "LinkMeApp user"}</p>
+        <div className="flex-1 min-w-0">
+          {editingName ? (
+            <form onSubmit={saveName} className="flex items-center gap-1.5">
+              <input
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                autoFocus
+                maxLength={80}
+                className="min-w-0 flex-1 border border-neutral-700 bg-neutral-900 text-white font-bold text-lg rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand"
+              />
+              <button
+                type="submit"
+                disabled={savingName}
+                className="flex items-center justify-center w-7 h-7 rounded-full bg-brand text-white disabled:opacity-60 active:scale-90 transition shrink-0"
+                aria-label="Save name"
+              >
+                <CheckIcon className="w-4 h-4" strokeWidth={2.5} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingName(false)}
+                className="flex items-center justify-center w-7 h-7 rounded-full bg-neutral-800 text-neutral-300 active:scale-90 transition shrink-0"
+                aria-label="Cancel"
+              >
+                <XMarkIcon className="w-4 h-4" strokeWidth={2.5} />
+              </button>
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={startEditingName}
+              className="group flex items-center gap-1.5 max-w-full active:opacity-70 transition"
+            >
+              <p className="font-bold text-lg text-white truncate">{user.name ?? "LinkMeApp user"}</p>
+              <PencilIcon
+                className="w-3.5 h-3.5 text-neutral-500 shrink-0 group-active:scale-90 transition"
+                strokeWidth={2}
+              />
+            </button>
+          )}
           <p className="text-neutral-400 text-sm">{user.phone ?? user.email}</p>
           {uploading && <p className="text-neutral-500 text-xs mt-1">Uploading...</p>}
           {avatarError && <p className="text-red-400 text-xs mt-1">{avatarError}</p>}
+          {nameError && <p className="text-red-400 text-xs mt-1">{nameError}</p>}
+          {showCooldownNotice && !user.canEditName && (
+            <p className="text-neutral-500 text-xs mt-1">
+              You can change your name again on {new Date(user.nameEditableAt).toLocaleDateString()}
+            </p>
+          )}
         </div>
       </div>
 
@@ -287,8 +369,8 @@ export default function AccountPage() {
         ) : null}
       </div>
 
-      <div className="relative mt-6 flex flex-col gap-3">
-        {user.primaryRole === "WORKER" ? (
+      {user.primaryRole === "WORKER" && (
+        <div className="relative mt-6 flex flex-col gap-3">
           <Link
             href="/onboarding/worker"
             className="group flex items-center gap-3 bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl px-4 py-3.5 shadow-lg shadow-black/30 active:scale-[0.98] transition"
@@ -304,22 +386,8 @@ export default function AccountPage() {
               strokeWidth={2}
             />
           </Link>
-        ) : (
-          <Link
-            href="/jobs/new"
-            className="group flex items-center gap-3 bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl px-4 py-3.5 shadow-lg shadow-black/30 active:scale-[0.98] transition"
-          >
-            <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-brand/10 text-brand shrink-0">
-              <DocumentPlusIcon className="w-5 h-5" strokeWidth={1.75} />
-            </span>
-            <span className="text-sm font-medium text-white flex-1">Post a job</span>
-            <ChevronRightIcon
-              className="w-4 h-4 text-neutral-600 shrink-0 group-active:translate-x-0.5 transition"
-              strokeWidth={2}
-            />
-          </Link>
-        )}
-      </div>
+        </div>
+      )}
 
       <button
         onClick={() => {

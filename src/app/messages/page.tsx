@@ -2,21 +2,32 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import StatusBadge from "@/components/StatusBadge";
 import { CardSkeletonList } from "@/components/Skeleton";
-import { ChatBubbleLeftRightIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { useSession } from "@/lib/use-session";
 import { useTap } from "@/lib/use-tap";
+
+type Person = { name: string | null; avatarUrl: string | null };
 
 type Booking = {
   id: string;
   status: string;
-  agreedAmountKes: number;
-  gig: { title: string };
-  worker?: { name: string | null };
-  transaction?: { status: string } | null;
-  messages?: { body: string }[];
+  gig: { title: string; client?: Person };
+  worker?: Person;
+  messages?: { body: string; createdAt: string }[];
 };
+
+function timeAgo(iso: string) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "now";
+  if (mins < 60) return `${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d`;
+  return new Date(iso).toLocaleDateString();
+}
 
 export default function MessagesPage() {
   const { user } = useSession();
@@ -67,7 +78,7 @@ export default function MessagesPage() {
           <p className="text-neutral-500 text-sm text-center">Nothing here yet.</p>
         </div>
       ) : (
-        <ul className="relative flex flex-col gap-3">
+        <ul className="relative flex flex-col">
           {list.map((b, i) => (
             <BookingCard key={b.id} booking={b} isWorker={isWorker} delayMs={i * 40} />
           ))}
@@ -87,40 +98,40 @@ function BookingCard({
   delayMs: number;
 }) {
   const { tapKey, bump } = useTap();
-  const latestMessage = booking.messages?.[0]?.body;
+  const counterpart = isWorker ? booking.gig.client : booking.worker;
+  const name = counterpart?.name ?? (isWorker ? "Client" : "Worker");
+  const latest = booking.messages?.[0];
 
   return (
-    <li className="animate-card-in" style={{ animationDelay: `${delayMs}ms` }}>
+    <li className="animate-card-in border-b border-neutral-900 last:border-b-0" style={{ animationDelay: `${delayMs}ms` }}>
       <Link
         href={`/messages/${booking.id}`}
         onClick={bump}
-        className="group flex items-start gap-3 bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-4 shadow-lg shadow-black/30 active:scale-[0.98] transition"
+        className="flex items-center gap-3 py-3.5 active:opacity-70 transition"
       >
-        <span className="flex items-center justify-center w-11 h-11 rounded-xl bg-brand/10 text-brand shrink-0">
-          <ChatBubbleLeftRightIcon key={tapKey} className="w-5 h-5 animate-icon-pop" strokeWidth={1.75} />
-        </span>
+        {counterpart?.avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- user-uploaded photo, no next/image domain config
+          <img
+            src={counterpart.avatarUrl}
+            alt={name}
+            className="w-12 h-12 rounded-full object-cover shrink-0"
+          />
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand to-brand-bright text-white flex items-center justify-center text-base font-bold shrink-0">
+            <span key={tapKey} className="animate-icon-pop">
+              {name.charAt(0).toUpperCase()}
+            </span>
+          </div>
+        )}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="font-semibold text-white">{booking.gig.title}</p>
-              {!isWorker && booking.worker && (
-                <p className="text-sm text-neutral-400 mt-0.5">with {booking.worker.name ?? "worker"}</p>
-              )}
-            </div>
-            <StatusBadge status={booking.status} />
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="font-semibold text-white truncate">{name}</p>
+            {latest && <p className="text-neutral-500 text-xs shrink-0">{timeAgo(latest.createdAt)}</p>}
           </div>
-          <p className="text-sm text-neutral-500 mt-2 truncate">
-            {latestMessage ?? `No messages yet — status: ${booking.status.toLowerCase()}`}
+          <p className="text-sm text-neutral-500 truncate mt-0.5">
+            {latest ? latest.body : booking.gig.title}
           </p>
-          <div className="flex items-center justify-between mt-3">
-            <p className="font-bold text-brand text-sm">KES {booking.agreedAmountKes}</p>
-            {booking.transaction && <StatusBadge status={booking.transaction.status} />}
-          </div>
         </div>
-        <ChevronRightIcon
-          className="w-4 h-4 text-neutral-600 shrink-0 mt-1 group-active:translate-x-0.5 transition"
-          strokeWidth={2}
-        />
       </Link>
     </li>
   );

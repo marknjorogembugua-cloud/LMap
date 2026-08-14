@@ -15,6 +15,8 @@ export const phoneSchema = z.string().refine((v) => normalizeKenyanPhone(v) !== 
 
 export const otpCodeSchema = z.string().regex(/^\d{6}$/, "Enter the 6-digit code");
 
+export const nameSchema = z.string().trim().min(2, "Name is too short").max(80);
+
 export const emailSchema = z
   .string()
   .trim()

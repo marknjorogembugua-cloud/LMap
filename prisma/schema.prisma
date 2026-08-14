@@ -97,6 +97,7 @@ model User {
   phone          String?       @unique
   email          String?       @unique
   name           String?
+  nameUpdatedAt  DateTime?
   primaryRole    PrimaryRole
   avatarUrl      String?
   county         String?

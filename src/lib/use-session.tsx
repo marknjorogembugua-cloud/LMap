@@ -9,6 +9,8 @@ export type CurrentUser = {
   name: string | null;
   primaryRole: "WORKER" | "CLIENT";
   avatarUrl: string | null;
+  canEditName: boolean;
+  nameEditableAt: string;
   workerProfile: {
     id: string;
     county: string;

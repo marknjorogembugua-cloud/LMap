@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
       : prisma.booking.findMany({
           where: { workerId: auth.session.userId },
           include: {
-            gig: { include: { client: { select: { name: true, phone: true } } } },
+            gig: { include: { client: { select: { name: true, phone: true, avatarUrl: true } } } },
             transaction: true,
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
           },
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
           where: { gig: { clientId: auth.session.userId } },
           include: {
             gig: true,
-            worker: { select: { name: true, phone: true } },
+            worker: { select: { name: true, phone: true, avatarUrl: true } },
             transaction: true,
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
           },

@@ -4,7 +4,6 @@ import {
   BriefcaseIcon,
   UsersIcon,
   DocumentPlusIcon,
-  ChatBubbleLeftRightIcon,
   ChevronRightIcon,
   StarIcon,
   CheckBadgeIcon,
@@ -35,10 +34,7 @@ export default async function DashboardPage() {
 
   const isWorker = user.primaryRole === "WORKER";
 
-  const [pendingBookingCount, completedCount, liveGigCount] = await Promise.all([
-    isWorker
-      ? prisma.booking.count({ where: { workerId: user.id, status: "REQUESTED" } })
-      : prisma.booking.count({ where: { gig: { clientId: user.id }, status: "REQUESTED" } }),
+  const [completedCount, liveGigCount] = await Promise.all([
     isWorker
       ? prisma.booking.count({ where: { workerId: user.id, status: "COMPLETED" } })
       : prisma.gig.count({ where: { clientId: user.id, status: "COMPLETED" } }),
@@ -113,29 +109,6 @@ export default async function DashboardPage() {
           <PrimaryCard href="/jobs/new" icon={DocumentPlusIcon} title="Post a job" subtitle="Get help fast" />
         </div>
       )}
-
-      <Link
-        href="/messages"
-        className="relative flex items-center gap-3 bg-neutral-900 border border-neutral-800 rounded-2xl p-4 mt-3 active:scale-[0.98] transition"
-      >
-        <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-brand/10 text-brand shrink-0">
-          <ChatBubbleLeftRightIcon className="w-5 h-5" strokeWidth={1.75} />
-        </span>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-white text-sm">Messages</p>
-          <p className="text-neutral-400 text-xs mt-0.5">
-            {pendingBookingCount > 0
-              ? `${pendingBookingCount} pending request${pendingBookingCount > 1 ? "s" : ""}`
-              : "Track your jobs"}
-          </p>
-        </div>
-        {pendingBookingCount > 0 && (
-          <span className="flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-brand text-white text-[11px] font-bold">
-            {pendingBookingCount}
-          </span>
-        )}
-        <ChevronRightIcon className="w-4 h-4 text-neutral-600 shrink-0" strokeWidth={2} />
-      </Link>
     </main>
   );
 }
