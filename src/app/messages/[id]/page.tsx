@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef, use as usePromise } from "react";
-import Link from "next/link";
 import {
   PaperAirplaneIcon,
-  ChevronLeftIcon,
   CheckIcon,
   XMarkIcon,
   PlayIcon,
@@ -15,6 +13,7 @@ import {
 import { StarIcon } from "@heroicons/react/24/solid";
 import { StarIcon as StarOutlineIcon } from "@heroicons/react/24/outline";
 import StatusBadge from "@/components/StatusBadge";
+import BackButton from "@/components/BackButton";
 import { useSession } from "@/lib/use-session";
 import { useTap } from "@/lib/use-tap";
 
@@ -261,6 +260,8 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
         aria-hidden="true"
         className="pointer-events-none absolute -top-32 -right-24 w-72 h-72 bg-brand/15 rounded-full blur-3xl"
       />
+
+      <BackButton fallbackHref="/messages" />
 
       <div className="relative bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-5 shadow-lg shadow-black/30">
         <div className="flex items-start justify-between gap-2">
@@ -570,14 +571,6 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
           </button>
         </form>
       </div>
-
-      <Link
-        href="/messages"
-        className="relative flex items-center justify-center gap-1 text-brand text-sm font-medium mt-8 active:scale-[0.98] transition"
-      >
-        <ChevronLeftIcon className="w-3.5 h-3.5" strokeWidth={2.5} />
-        Back to messages
-      </Link>
     </main>
   );
 }

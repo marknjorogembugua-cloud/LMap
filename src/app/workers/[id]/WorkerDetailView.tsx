@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import StarRating from "@/components/StarRating";
 import ShareButton from "@/components/ShareButton";
+import BackButton from "@/components/BackButton";
 import { useSession } from "@/lib/use-session";
 
 export type WorkerDetail = {
@@ -104,7 +105,8 @@ export default function WorkerDetailView({
 
   return (
     <main className="px-6 py-8 max-w-md mx-auto w-full">
-      <div className="flex justify-end mb-3">
+      <div className="flex items-center justify-between mb-3">
+        <BackButton fallbackHref="/workers" className="" />
         <ShareButton
           title={worker.user.name ?? "LinkMeApp worker"}
           text={`${worker.user.name ?? "This worker"} · ${worker.category} on LinkMeApp`}

@@ -11,6 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { KENYA_COUNTIES } from "@/lib/categories";
 import { useSession } from "@/lib/use-session";
+import BackButton from "@/components/BackButton";
 
 type Certification = {
   id: string;
@@ -417,6 +418,7 @@ export default function WorkerOnboardingPage() {
   if (isEditing) {
     return (
       <main className="px-6 py-8 max-w-md mx-auto w-full">
+        <BackButton fallbackHref="/account" />
         <h1 className="text-2xl font-bold text-white">Edit your profile</h1>
         <p className="text-neutral-400 text-sm mt-1 mb-6">This is how clients find and trust you.</p>
 

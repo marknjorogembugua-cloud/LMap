@@ -12,6 +12,7 @@ import {
 import { guessCategoryIcon } from "@/lib/categories";
 import StatusBadge from "@/components/StatusBadge";
 import ShareButton from "@/components/ShareButton";
+import BackButton from "@/components/BackButton";
 import { useSession } from "@/lib/use-session";
 import { useTap } from "@/lib/use-tap";
 
@@ -97,7 +98,8 @@ export default function JobDetailView({ id, initialJob }: { id: string; initialJ
         className="pointer-events-none absolute -top-32 -right-24 w-72 h-72 bg-brand/15 rounded-full blur-3xl"
       />
 
-      <div className="relative flex justify-end mb-3">
+      <div className="relative flex items-center justify-between mb-3">
+        <BackButton fallbackHref="/jobs" className="" />
         <ShareButton title={job.title} text={`${job.title} · ${job.category} on LinkMeApp`} />
       </div>
 

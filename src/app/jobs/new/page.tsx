@@ -6,6 +6,7 @@ import { KENYA_COUNTIES } from "@/lib/categories";
 import { useSession } from "@/lib/use-session";
 import { MapPinIcon, CheckCircleIcon, DocumentPlusIcon } from "@heroicons/react/24/outline";
 import { useTap } from "@/lib/use-tap";
+import BackButton from "@/components/BackButton";
 
 export default function NewJobPage() {
   const router = useRouter();
@@ -80,6 +81,8 @@ export default function NewJobPage() {
         aria-hidden="true"
         className="pointer-events-none absolute -top-32 -right-24 w-72 h-72 bg-brand/15 rounded-full blur-3xl"
       />
+
+      <BackButton fallbackHref="/dashboard" />
 
       <div className="relative flex items-center gap-3">
         <span className="flex items-center justify-center w-11 h-11 rounded-xl bg-brand/10 text-brand shrink-0">

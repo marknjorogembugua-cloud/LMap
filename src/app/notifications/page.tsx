@@ -11,6 +11,7 @@ import {
   BellIcon,
 } from "@heroicons/react/24/outline";
 import type { ComponentType, SVGProps } from "react";
+import BackButton from "@/components/BackButton";
 
 const POLL_MS = 5000;
 
@@ -82,6 +83,7 @@ export default function NotificationsPage() {
 
   return (
     <main className="px-6 py-8 max-w-md mx-auto w-full">
+      <BackButton fallbackHref="/dashboard" />
       <div className="flex items-start justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold text-white">Notifications</h1>
