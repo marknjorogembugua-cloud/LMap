@@ -11,6 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 import type { ComponentType, SVGProps } from "react";
 import { useSession } from "@/lib/use-session";
+import { useShowChrome } from "@/lib/use-chrome";
 import { useTap } from "@/lib/use-tap";
 
 const WORKER_ITEMS = [
@@ -29,11 +30,10 @@ const CLIENT_ITEMS = [
 
 export default function BottomNav() {
   const pathname = usePathname();
-  const { user, loading } = useSession();
+  const { user } = useSession();
+  const showChrome = useShowChrome();
 
-  if (!loading && !user) return null;
-  if (pathname === "/" || pathname.startsWith("/login")) return null;
-  if (!user) return null;
+  if (!showChrome || !user) return null;
 
   const items = user.primaryRole === "WORKER" ? WORKER_ITEMS : CLIENT_ITEMS;
 

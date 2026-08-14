@@ -2,16 +2,16 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { BellIcon } from "@heroicons/react/24/outline";
 import { useSession } from "@/lib/use-session";
+import { useShowChrome } from "@/lib/use-chrome";
 import { useTap } from "@/lib/use-tap";
 
 const POLL_MS = 20000;
 
 export default function NotificationBell() {
-  const pathname = usePathname();
-  const { user, loading } = useSession();
+  const { user } = useSession();
+  const showChrome = useShowChrome();
   const [count, setCount] = useState(0);
   const { tapKey, bump } = useTap();
 
@@ -30,9 +30,7 @@ export default function NotificationBell() {
     return () => clearInterval(interval);
   }, [user, loadCount]);
 
-  if (!loading && !user) return null;
-  if (pathname === "/" || pathname.startsWith("/login")) return null;
-  if (!user) return null;
+  if (!showChrome || !user) return null;
 
   return (
     <Link

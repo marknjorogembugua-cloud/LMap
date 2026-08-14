@@ -29,8 +29,10 @@ export async function issueOtp(identifier: string, channel: OtpChannel): Promise
   }
 
   // No real SMS/email provider configured: surface the code so it's usable
-  // without reading the server console. Never happens in production.
-  if (usingConsoleProvider && process.env.NODE_ENV !== "production") {
+  // without reading the server console. Gated by SHOW_DEV_OTP so this never
+  // runs on a real production domain — only intentionally-enabled test envs.
+  const devOtpEnabled = process.env.SHOW_DEV_OTP === "true" || process.env.NODE_ENV !== "production";
+  if (usingConsoleProvider && devOtpEnabled) {
     return { devCode: code };
   }
   return {};
