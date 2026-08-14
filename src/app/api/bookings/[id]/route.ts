@@ -10,6 +10,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       gig: { include: { client: { select: { id: true, name: true, phone: true } } } },
       worker: { select: { id: true, name: true, phone: true } },
       transaction: true,
+      payout: true,
+      dispute: true,
       reviews: true,
     },
   });

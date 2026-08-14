@@ -9,9 +9,9 @@ export async function GET() {
 
   if (primaryRole === "WORKER") {
     const [earned, completedCount, activeCount, profile] = await Promise.all([
-      prisma.transaction.aggregate({
-        where: { status: "SUCCESS", booking: { workerId: userId } },
-        _sum: { amountKes: true },
+      prisma.payout.aggregate({
+        where: { status: "SUCCESS", workerId: userId },
+        _sum: { netAmountKes: true },
       }),
       prisma.booking.count({ where: { workerId: userId, status: "COMPLETED" } }),
       prisma.booking.count({ where: { workerId: userId, status: { in: ["ACCEPTED", "IN_PROGRESS"] } } }),
@@ -24,7 +24,7 @@ export async function GET() {
     return NextResponse.json({
       role: "WORKER",
       stats: {
-        totalEarnedKes: earned._sum.amountKes ?? 0,
+        totalEarnedKes: earned._sum.netAmountKes ?? 0,
         completedCount,
         activeCount,
         ratingAvg: profile?.ratingAvg ?? 0,

@@ -15,6 +15,16 @@ export async function isAdminEmail(email: string | null | undefined): Promise<bo
   return adminAllowlist().includes(email.toLowerCase());
 }
 
+export async function getAdminUserIds(): Promise<string[]> {
+  const allowlist = adminAllowlist();
+  if (allowlist.length === 0) return [];
+  const admins = await prisma.user.findMany({
+    where: { email: { in: allowlist, mode: "insensitive" } },
+    select: { id: true },
+  });
+  return admins.map((a) => a.id);
+}
+
 export async function requireAdmin(): Promise<
   { session: SessionPayload } | { error: NextResponse }
 > {

@@ -108,3 +108,75 @@ export function parseStkCallback(body: MpesaCallbackBody) {
     phoneNumber: find("PhoneNumber") as string | undefined,
   };
 }
+
+export type B2CResult = {
+  ConversationID: string;
+  OriginatorConversationID: string;
+  ResponseCode: string;
+  ResponseDescription: string;
+};
+
+/**
+ * Pays a worker directly (Business Payment). Requires MPESA_INITIATOR_NAME
+ * and MPESA_SECURITY_CREDENTIAL — the latter is the initiator password
+ * already encrypted with Safaricom's public certificate, generated once
+ * outside this codebase (same as how MPESA_PASSKEY is obtained), not
+ * something computed here.
+ */
+export async function b2cPayment(params: {
+  phone: string;
+  amountKes: number;
+  remarks: string;
+  occasion?: string;
+}): Promise<B2CResult> {
+  const shortcode = process.env.MPESA_B2C_SHORTCODE ?? process.env.MPESA_SHORTCODE ?? "174379";
+  const token = await getAccessToken();
+
+  const { data } = await axios.post(
+    `${BASE_URL}/mpesa/b2c/v1/paymentrequest`,
+    {
+      InitiatorName: process.env.MPESA_INITIATOR_NAME,
+      SecurityCredential: process.env.MPESA_SECURITY_CREDENTIAL,
+      CommandID: "BusinessPayment",
+      Amount: params.amountKes,
+      PartyA: shortcode,
+      PartyB: params.phone,
+      Remarks: params.remarks,
+      QueueTimeOutURL: process.env.MPESA_B2C_TIMEOUT_URL,
+      ResultURL: process.env.MPESA_B2C_RESULT_URL,
+      Occasion: params.occasion ?? "",
+    },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+  return data as B2CResult;
+}
+
+export type MpesaB2CCallbackBody = {
+  Result: {
+    ResultType: number;
+    ResultCode: number;
+    ResultDesc: string;
+    OriginatorConversationID: string;
+    ConversationID: string;
+    TransactionID?: string;
+    ResultParameters?: {
+      ResultParameter: { Key: string; Value?: string | number }[];
+    };
+  };
+};
+
+export function parseB2CResultCallback(body: MpesaB2CCallbackBody) {
+  const result = body.Result;
+  const items = result.ResultParameters?.ResultParameter ?? [];
+  const find = (key: string) => items.find((i) => i.Key === key)?.Value;
+
+  return {
+    conversationId: result.ConversationID,
+    originatorConversationId: result.OriginatorConversationID,
+    success: result.ResultCode === 0,
+    resultDesc: result.ResultDesc,
+    amount: find("TransactionAmount") as number | undefined,
+    mpesaReceiptNumber: (result.TransactionID ?? find("TransactionReceipt")) as string | undefined,
+  };
+}

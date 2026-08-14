@@ -10,6 +10,7 @@ import {
   PlayIcon,
   CheckCircleIcon,
   BanknotesIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { StarIcon as StarOutlineIcon } from "@heroicons/react/24/outline";
@@ -24,8 +25,17 @@ type BookingDetail = {
   gig: { id: string; title: string; client: { id: string; name: string | null; phone: string | null } };
   worker: { id: string; name: string | null; phone: string | null };
   transaction: { id: string; status: string; mpesaReceiptNumber: string | null } | null;
+  payout: {
+    id: string;
+    status: string;
+    netAmountKes: number;
+    mpesaReceiptNumber: string | null;
+  } | null;
+  dispute: { id: string; status: string; reason: string } | null;
   reviews: { reviewerId: string; rating: number; comment: string | null }[];
 };
+
+const DISPUTABLE_STATUSES = ["ACCEPTED", "IN_PROGRESS", "COMPLETED"];
 
 type Message = {
   id: string;
@@ -47,6 +57,10 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
   const [needsPhone, setNeedsPhone] = useState(false);
   const [phoneInput, setPhoneInput] = useState("");
   const [savingPhone, setSavingPhone] = useState(false);
+  const [showDisputeForm, setShowDisputeForm] = useState(false);
+  const [disputeReason, setDisputeReason] = useState("");
+  const [disputeBusy, setDisputeBusy] = useState(false);
+  const [disputeError, setDisputeError] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [rating, setRating] = useState(5);
@@ -167,6 +181,28 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
     }
   }
 
+  async function submitDispute(e: React.FormEvent) {
+    e.preventDefault();
+    setDisputeError(null);
+    setDisputeBusy(true);
+    try {
+      const res = await fetch(`/api/bookings/${id}/dispute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: disputeReason }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Could not submit report");
+      setShowDisputeForm(false);
+      setDisputeReason("");
+      await load();
+    } catch (err) {
+      setDisputeError(err instanceof Error ? err.message : "Could not submit report");
+    } finally {
+      setDisputeBusy(false);
+    }
+  }
+
   async function submitReview(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -261,6 +297,18 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
       {error && <p className="relative text-red-400 text-sm mt-4">{error}</p>}
 
       <div className="relative mt-6 flex flex-col gap-3">
+        {booking.dispute?.status === "OPEN" ? (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
+            <ExclamationTriangleIcon className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" strokeWidth={1.75} />
+            <div>
+              <p className="text-amber-300 font-semibold text-sm">This booking is under review</p>
+              <p className="text-neutral-400 text-xs mt-1">
+                A dispute has been raised and is being looked at. Payment is on hold until it&apos;s resolved.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
         {booking.status === "REQUESTED" && isClient && (
           <div className="flex gap-2">
             <button
@@ -379,6 +427,23 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
             ) : (
               <p className="text-neutral-400 text-sm mt-2">Waiting for payment from the client.</p>
             )}
+
+            {booking.transaction?.status === "SUCCESS" && isWorker && (
+              <div className="mt-3 pt-3 border-t border-neutral-800">
+                <p className="text-xs text-neutral-500">Your payout</p>
+                {booking.payout?.status === "SUCCESS" ? (
+                  <p className="text-brand text-sm mt-1 flex items-center gap-1.5">
+                    <CheckCircleIcon className="w-4 h-4 shrink-0" strokeWidth={2} />
+                    KES {booking.payout.netAmountKes} sent
+                    {booking.payout.mpesaReceiptNumber ? ` · Receipt ${booking.payout.mpesaReceiptNumber}` : ""}
+                  </p>
+                ) : booking.payout?.status === "FAILED" ? (
+                  <p className="text-red-400 text-sm mt-1">Payout failed — contact support.</p>
+                ) : (
+                  <p className="text-amber-400 text-sm mt-1">On its way to your phone.</p>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -410,6 +475,55 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
         )}
 
         {terminal && <p className="text-neutral-400 text-sm text-center">This conversation was {booking.status.toLowerCase()}.</p>}
+          </>
+        )}
+
+        {!terminal && !booking.dispute && DISPUTABLE_STATUSES.includes(booking.status) && (
+          <>
+            {!showDisputeForm ? (
+              <button
+                type="button"
+                onClick={() => setShowDisputeForm(true)}
+                className="flex items-center justify-center gap-1.5 text-neutral-500 text-xs font-medium mt-1"
+              >
+                <ExclamationTriangleIcon className="w-3.5 h-3.5" strokeWidth={1.75} />
+                Report a problem
+              </button>
+            ) : (
+              <form
+                onSubmit={submitDispute}
+                className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 flex flex-col gap-3"
+              >
+                <p className="font-semibold text-sm text-white">What went wrong?</p>
+                <textarea
+                  value={disputeReason}
+                  onChange={(e) => setDisputeReason(e.target.value)}
+                  placeholder="Describe the issue in a bit of detail..."
+                  rows={3}
+                  required
+                  className="border border-neutral-700 bg-neutral-900 text-white placeholder:text-neutral-500 rounded-xl px-3.5 py-2.5 text-sm"
+                />
+                {disputeError && <p className="text-red-400 text-sm">{disputeError}</p>}
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={disputeBusy}
+                    className="flex-1 bg-neutral-800 text-white font-semibold rounded-xl py-2.5 text-sm disabled:opacity-60"
+                  >
+                    {disputeBusy ? "Submitting..." : "Submit report"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowDisputeForm(false)}
+                    className="flex-1 text-neutral-400 text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+          </>
+        )}
       </div>
 
       <div className="relative mt-8">

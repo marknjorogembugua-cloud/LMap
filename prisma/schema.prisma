@@ -70,6 +70,26 @@ enum NotificationType {
   BOOKING_STARTED
   BOOKING_COMPLETED
   NEW_MESSAGE
+  DISPUTE_RAISED
+  DISPUTE_RESOLVED
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+}
+
+enum DisputeStatus {
+  OPEN
+  RESOLVED
+}
+
+enum DisputeResolution {
+  RELEASE_TO_WORKER
+  REFUND_CLIENT
+  NO_ACTION
 }
 
 model User {
@@ -92,6 +112,7 @@ model User {
   messages       Message[]
   notifications  Notification[]
   pushSubscriptions PushSubscription[]
+  disputesRaised Dispute[]
 }
 
 model OtpCode {
@@ -172,6 +193,8 @@ model Booking {
   completedAt     DateTime?
 
   transaction     Transaction?
+  payout          Payout?
+  dispute         Dispute?
   reviews         Review[]
   messages        Message[]
 
@@ -192,6 +215,43 @@ model Transaction {
   resultDesc         String?
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
+}
+
+model Payout {
+  id                       String       @id @default(cuid())
+  bookingId                String       @unique
+  booking                  Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  workerId                 String
+  phoneNumber              String
+  grossAmountKes           Int
+  commissionKes            Int
+  netAmountKes             Int
+  status                   PayoutStatus @default(PENDING)
+  conversationId           String?
+  originatorConversationId String?
+  mpesaReceiptNumber       String?
+  resultDesc               String?
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
+
+  @@index([workerId, status])
+}
+
+model Dispute {
+  id             String             @id @default(cuid())
+  bookingId      String             @unique
+  booking        Booking            @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  raisedById     String
+  raisedBy       User               @relation(fields: [raisedById], references: [id], onDelete: Cascade)
+  reason         String
+  status         DisputeStatus      @default(OPEN)
+  resolution     DisputeResolution?
+  resolutionNote String?
+  resolvedAt     DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([status])
 }
 
 model Review {

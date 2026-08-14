@@ -103,6 +103,15 @@ export const pushUnsubscribeSchema = z.object({
   endpoint: z.string().url(),
 });
 
+export const disputeCreateSchema = z.object({
+  reason: z.string().trim().min(10, "Explain what went wrong in a bit more detail").max(1000),
+});
+
+export const disputeResolveSchema = z.object({
+  resolution: z.enum(["RELEASE_TO_WORKER", "REFUND_CLIENT", "NO_ACTION"]),
+  note: z.string().max(500).optional(),
+});
+
 export const certificationSchema = z.object({
   title: z.string().min(2).max(120),
   institution: z.string().max(120).optional(),

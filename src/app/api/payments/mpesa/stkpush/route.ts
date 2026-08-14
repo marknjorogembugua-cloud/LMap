@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
   const booking = await prisma.booking.findUnique({
     where: { id: parsed.data.bookingId },
-    include: { gig: true, worker: true, transaction: true },
+    include: { gig: true, worker: true, transaction: true, dispute: true },
   });
   if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
   if (booking.gig.clientId !== auth.session.userId) {
@@ -29,6 +29,12 @@ export async function POST(req: NextRequest) {
   }
   if (booking.transaction?.status === "SUCCESS") {
     return NextResponse.json({ error: "This booking has already been paid" }, { status: 400 });
+  }
+  if (booking.dispute?.status === "OPEN") {
+    return NextResponse.json(
+      { error: "This booking has an open dispute — payment is on hold until it's resolved" },
+      { status: 400 }
+    );
   }
   if (!auth.session.phone) {
     return NextResponse.json(
