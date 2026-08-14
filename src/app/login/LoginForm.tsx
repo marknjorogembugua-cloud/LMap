@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "@/lib/use-session";
 
 type Step = "identifier" | "otp";
 type Method = "phone" | "email";
 
 export default function LoginForm() {
   const router = useRouter();
+  const { refresh } = useSession();
   const searchParams = useSearchParams();
   const role = searchParams.get("role") === "WORKER" ? "WORKER" : "CLIENT";
 
@@ -63,6 +65,8 @@ export default function LoginForm() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Invalid code");
+
+      await refresh();
 
       if (role === "WORKER" && !data.user.workerProfile) {
         router.push("/onboarding/worker");
