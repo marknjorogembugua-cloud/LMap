@@ -78,6 +78,12 @@ body {
   }
 }
 
+@keyframes link-line-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 @keyframes wordmark-in {
   from {
     opacity: 0;

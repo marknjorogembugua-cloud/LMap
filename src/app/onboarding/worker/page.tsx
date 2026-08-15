@@ -26,8 +26,8 @@ export default function WorkerOnboardingPage() {
   const { user, loading: sessionLoading, refresh } = useSession();
   const isEditing = !!user?.workerProfile;
 
-  // Step 1: the only fields a WorkerProfile actually requires.
-  const [wizardStep, setWizardStep] = useState<1 | 2>(1);
+  // The only fields a WorkerProfile actually requires.
+  const [showExtras, setShowExtras] = useState(false);
   const [category, setCategory] = useState("");
   const [county, setCounty] = useState(KENYA_COUNTIES[0]);
   const [area, setArea] = useState("");
@@ -173,23 +173,10 @@ export default function WorkerOnboardingPage() {
     if (!res.ok) throw new Error(data.error ?? "Something went wrong");
   }
 
-  // Step 1 "Continue": create the profile with just the required basics,
-  // so it exists even if the user drops off before step 2.
-  async function submitBasics(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      await saveProfile();
-      setWizardStep(2);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function finishWithExtras(e: React.FormEvent) {
+  // First-time signup: one screen, one save. Required fields are category
+  // + area (that's all matching needs); everything else is optional and
+  // tucked behind "Add more details" so it never blocks getting started.
+  async function submitOnboarding(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -525,79 +512,60 @@ export default function WorkerOnboardingPage() {
     );
   }
 
-  // First-time signup: a short two-step wizard. Step 1 is the only thing
-  // actually required; step 2 is skippable and everything in it is optional.
+  // First-time signup: one screen. Category + area are all that's needed
+  // to start getting matched; everything else is optional and hidden
+  // behind a disclosure so it never blocks getting started.
   return (
     <main className="px-6 py-8 max-w-md mx-auto w-full">
-      <div className="flex items-center gap-2 mb-6">
-        <div className={`h-1.5 flex-1 rounded-full ${wizardStep >= 1 ? "bg-brand" : "bg-neutral-800"}`} />
-        <div className={`h-1.5 flex-1 rounded-full ${wizardStep >= 2 ? "bg-brand" : "bg-neutral-800"}`} />
-      </div>
+      <h1 className="text-2xl font-bold text-white">What do you do, and where?</h1>
+      <p className="text-neutral-400 text-sm mt-1 mb-6">That&apos;s all you need to start getting matched.</p>
 
-      {wizardStep === 1 ? (
-        <>
-          <h1 className="text-2xl font-bold text-white">What do you do, and where?</h1>
-          <p className="text-neutral-400 text-sm mt-1 mb-6">Step 1 of 2 — this is all you need to get started.</p>
+      <form onSubmit={submitOnboarding} className="flex flex-col gap-4">
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium text-neutral-200">What do you do?</span>
+          <input
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+            placeholder="e.g. Plumber, House painter, Boda boda rider"
+            className="border border-neutral-700 bg-neutral-900 text-white placeholder:text-neutral-500 rounded-xl px-4 py-3 text-base"
+          />
+        </label>
 
-          <form onSubmit={submitBasics} className="flex flex-col gap-4">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium text-neutral-200">What do you do?</span>
-              <input
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                required
-                placeholder="e.g. Plumber, House painter, Boda boda rider"
-                className="border border-neutral-700 bg-neutral-900 text-white placeholder:text-neutral-500 rounded-xl px-4 py-3 text-base"
-              />
-            </label>
-
-            <div className="grid grid-cols-2 gap-4">
-              <label className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium text-neutral-200">County</span>
-                <select
-                  value={county}
-                  onChange={(e) => setCounty(e.target.value)}
-                  className="border border-neutral-700 bg-neutral-900 text-white placeholder:text-neutral-500 rounded-xl px-4 py-3 text-base"
-                >
-                  {KENYA_COUNTIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium text-neutral-200">Area / estate</span>
-                <input
-                  value={area}
-                  onChange={(e) => setArea(e.target.value)}
-                  required
-                  placeholder="e.g. Kasarani"
-                  className="border border-neutral-700 bg-neutral-900 text-white placeholder:text-neutral-500 rounded-xl px-4 py-3 text-base"
-                />
-              </label>
-            </div>
-
-            {locationButton}
-
-            {error && <p className="text-red-400 text-sm">{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-brand text-white font-semibold rounded-xl shadow-lg shadow-brand/20 py-3.5 disabled:opacity-60 mt-2"
+        <div className="grid grid-cols-2 gap-4">
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-neutral-200">County</span>
+            <select
+              value={county}
+              onChange={(e) => setCounty(e.target.value)}
+              className="border border-neutral-700 bg-neutral-900 text-white placeholder:text-neutral-500 rounded-xl px-4 py-3 text-base"
             >
-              {loading ? "Saving..." : "Continue"}
-            </button>
-          </form>
-        </>
-      ) : (
-        <>
-          <h1 className="text-2xl font-bold text-white">Add a few more details</h1>
-          <p className="text-neutral-400 text-sm mt-1 mb-6">
-            Step 2 of 2 — totally optional. You can always fill these in later from your profile.
-          </p>
+              {KENYA_COUNTIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-neutral-200">Area / estate</span>
+            <input
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+              required
+              placeholder="e.g. Kasarani"
+              className="border border-neutral-700 bg-neutral-900 text-white placeholder:text-neutral-500 rounded-xl px-4 py-3 text-base"
+            />
+          </label>
+        </div>
 
-          <form onSubmit={finishWithExtras} className="flex flex-col gap-4">
+        {locationButton}
+
+        {showExtras ? (
+          <div className="flex flex-col gap-4 pt-2 border-t border-neutral-800 mt-2">
+            <p className="text-neutral-500 text-xs -mb-1">
+              Optional — you can also add these later from your profile.
+            </p>
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-medium text-neutral-200">Short bio</span>
               <textarea
@@ -643,25 +611,26 @@ export default function WorkerOnboardingPage() {
                 />
               </label>
             </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowExtras(true)}
+            className="text-brand text-sm font-medium text-left"
+          >
+            + Add more details (optional)
+          </button>
+        )}
 
-            {error && <p className="text-red-400 text-sm">{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-brand text-white font-semibold rounded-xl shadow-lg shadow-brand/20 py-3.5 disabled:opacity-60 mt-2"
-            >
-              {loading ? "Saving..." : "Save & finish"}
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push("/dashboard")}
-              className="text-neutral-400 text-sm font-medium"
-            >
-              Skip for now
-            </button>
-          </form>
-        </>
-      )}
+        {error && <p className="text-red-400 text-sm">{error}</p>}
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-brand text-white font-semibold rounded-xl shadow-lg shadow-brand/20 py-3.5 disabled:opacity-60 mt-2"
+        >
+          {loading ? "Saving..." : "Get started"}
+        </button>
+      </form>
     </main>
   );
 }
