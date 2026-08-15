@@ -255,26 +255,30 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
   const terminal = booking.status === "DECLINED" || booking.status === "CANCELLED";
 
   return (
-    <main className="relative px-6 py-8 max-w-md mx-auto w-full overflow-hidden">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-32 -right-24 w-72 h-72 bg-brand/15 rounded-full blur-3xl"
-      />
-
-      <BackButton fallbackHref="/messages" />
-
-      <div className="relative bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-5 shadow-lg shadow-black/30">
-        <div className="flex items-start justify-between gap-2">
-          <h1 className="text-xl font-bold text-white leading-snug">{booking.gig.title}</h1>
-          <StatusBadge status={booking.status} />
+    <div className="fixed inset-0 z-30 flex flex-col bg-black">
+      <div className="shrink-0 flex items-center gap-2 px-2 pb-3 border-b border-neutral-800 bg-neutral-950 safe-area-top">
+        <BackButton fallbackHref="/messages" className="shrink-0" />
+        <div className="flex-1 min-w-0">
+          <p className="text-white font-semibold text-sm truncate">{booking.gig.title}</p>
+          <p className="text-neutral-500 text-xs truncate">
+            {isClient ? `Worker: ${booking.worker.name ?? "—"}` : `Client: ${booking.gig.client.name ?? "—"}`}
+          </p>
         </div>
-        <p className="text-neutral-400 text-sm mt-1">
-          {isClient ? `Worker: ${booking.worker.name ?? "—"}` : `Client: ${booking.gig.client.name ?? "—"}`}
-        </p>
-        <p className="font-bold text-brand mt-2">KES {booking.agreedAmountKes}</p>
+        <StatusBadge status={booking.status} />
+      </div>
+
+      <div className="relative flex-1 overflow-y-auto px-4 py-4">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-32 -right-24 w-72 h-72 bg-brand/15 rounded-full blur-3xl"
+        />
+
+        <div className="relative flex items-center justify-between">
+          <p className="font-bold text-brand">KES {booking.agreedAmountKes}</p>
+        </div>
 
         {!terminal && (
-          <div className="flex items-center mt-5">
+          <div className="relative flex items-center mt-3">
             {STEPS.map((s, i) => (
               <div key={s} className="flex-1 flex items-center">
                 <div
@@ -293,11 +297,10 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
             ))}
           </div>
         )}
-      </div>
 
-      {error && <p className="relative text-red-400 text-sm mt-4">{error}</p>}
+        {error && <p className="relative text-red-400 text-sm mt-4">{error}</p>}
 
-      <div className="relative mt-6 flex flex-col gap-3">
+        <div className="relative mt-4 flex flex-col gap-3">
         {booking.dispute?.status === "OPEN" ? (
           <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
             <ExclamationTriangleIcon className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" strokeWidth={1.75} />
@@ -527,9 +530,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
         )}
       </div>
 
-      <div className="relative mt-8">
-        <h2 className="font-semibold text-white mb-3">Chat</h2>
-        <div className="bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-3 flex flex-col gap-2 max-h-96 overflow-y-auto shadow-lg shadow-black/30">
+        <div className="relative flex flex-col gap-2 mt-6">
           {messages.length === 0 ? (
             <p className="text-neutral-500 text-sm text-center py-6">
               No messages yet. Say hello to sort out the details.
@@ -554,24 +555,27 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
           )}
           <div ref={messagesEndRef} />
         </div>
-
-        <form onSubmit={sendMessage} className="flex gap-2 mt-3">
-          <input
-            value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 border border-neutral-700 bg-neutral-900 text-white placeholder:text-neutral-500 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
-          />
-          <button
-            type="submit"
-            disabled={sendingMessage || !messageText.trim()}
-            className="flex items-center justify-center w-11 h-11 shrink-0 bg-brand text-white rounded-xl shadow-lg shadow-brand/20 disabled:opacity-60 active:scale-[0.94] transition"
-          >
-            <PaperAirplaneIcon key={sendTap.tapKey} className="w-4 h-4 animate-icon-pop" />
-          </button>
-        </form>
       </div>
-    </main>
+
+      <form
+        onSubmit={sendMessage}
+        className="shrink-0 flex gap-2 px-3 py-3 border-t border-neutral-800 bg-neutral-950 safe-area-bottom"
+      >
+        <input
+          value={messageText}
+          onChange={(e) => setMessageText(e.target.value)}
+          placeholder="Type a message..."
+          className="flex-1 border border-neutral-700 bg-neutral-900 text-white placeholder:text-neutral-500 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+        />
+        <button
+          type="submit"
+          disabled={sendingMessage || !messageText.trim()}
+          className="flex items-center justify-center w-11 h-11 shrink-0 bg-brand text-white rounded-xl shadow-lg shadow-brand/20 disabled:opacity-60 active:scale-[0.94] transition"
+        >
+          <PaperAirplaneIcon key={sendTap.tapKey} className="w-4 h-4 animate-icon-pop" />
+        </button>
+      </form>
+    </div>
   );
 }
 

@@ -7,5 +7,11 @@ import { useSession } from "@/lib/use-session";
 export function useShowChrome(): boolean {
   const pathname = usePathname();
   const { user } = useSession();
-  return !!user && pathname !== "/" && !pathname.startsWith("/login") && !pathname.startsWith("/signup");
+  return (
+    !!user &&
+    pathname !== "/" &&
+    !pathname.startsWith("/login") &&
+    !pathname.startsWith("/signup") &&
+    !pathname.startsWith("/messages/")
+  );
 }

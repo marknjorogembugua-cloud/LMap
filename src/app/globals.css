@@ -26,6 +26,10 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
 @keyframes dot-drop-left {
   0% {
     transform: translate(0, -220px) rotate(-60deg);
