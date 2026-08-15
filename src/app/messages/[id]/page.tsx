@@ -479,8 +479,8 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
           <>
             <p className="text-neutral-400 text-sm text-center">Thanks for your review!</p>
             <div className="bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-4 shadow-lg shadow-black/30">
-              <p className="text-sm font-medium text-white">Know someone who needs this?</p>
-              <p className="text-neutral-400 text-xs mt-0.5 mb-3">Share LinkMeUp with them on WhatsApp.</p>
+              <p className="font-semibold text-sm text-white">Know someone who needs this?</p>
+              <p className="text-neutral-400 text-xs mt-1 mb-3">Share LinkMeUp with them on WhatsApp.</p>
               <WhatsAppShareButton
                 message={
                   isWorker

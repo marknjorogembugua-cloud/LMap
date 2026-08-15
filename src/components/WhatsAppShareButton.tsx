@@ -1,10 +1,8 @@
 "use client";
 
-import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/solid";
+import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { buildWhatsAppShareLink } from "@/lib/whatsapp";
 import { useTap } from "@/lib/use-tap";
-
-const WHATSAPP_GREEN = "#25D366";
 
 export default function WhatsAppShareButton({
   message,
@@ -27,10 +25,9 @@ export default function WhatsAppShareButton({
     <button
       type="button"
       onClick={share}
-      style={{ backgroundColor: WHATSAPP_GREEN, boxShadow: `0 10px 20px -8px ${WHATSAPP_GREEN}66` }}
-      className={`flex items-center justify-center gap-2 text-white font-semibold rounded-xl py-3 active:scale-[0.98] transition ${className}`}
+      className={`w-full flex items-center justify-center gap-2 bg-[#25D366] text-white font-semibold rounded-xl py-2.5 text-sm shadow-lg shadow-[#25D366]/25 active:scale-[0.98] transition ${className}`}
     >
-      <ChatBubbleLeftRightIcon key={tapKey} className="w-[18px] h-[18px] shrink-0 animate-icon-pop" />
+      <ChatBubbleLeftRightIcon key={tapKey} className="w-4 h-4 shrink-0 animate-icon-pop" strokeWidth={2} />
       {label}
     </button>
   );

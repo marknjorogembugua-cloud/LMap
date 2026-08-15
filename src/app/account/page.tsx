@@ -18,6 +18,7 @@ import {
   PencilIcon,
   CheckIcon,
   XMarkIcon,
+  ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
 import { useSession } from "@/lib/use-session";
 import { useTap } from "@/lib/use-tap";
@@ -390,13 +391,20 @@ export default function AccountPage() {
         </div>
       )}
 
-      <div className="relative mt-6 bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-4 shadow-lg shadow-black/30">
-        <p className="text-sm font-medium text-white">Know someone who needs this?</p>
-        <p className="text-neutral-400 text-xs mt-0.5 mb-3">
-          {user.primaryRole === "WORKER"
-            ? "Invite them to find paying jobs nearby and get paid instantly via M-Pesa."
-            : "Invite them to hire trusted, verified workers nearby via M-Pesa."}
-        </p>
+      <div className="relative mt-6 bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-4 flex flex-col gap-3 shadow-lg shadow-black/30">
+        <div className="flex items-center gap-3">
+          <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#25D366]/10 text-[#25D366] shrink-0">
+            <ChatBubbleLeftRightIcon className="w-5 h-5" strokeWidth={1.75} />
+          </span>
+          <div>
+            <p className="text-sm font-medium text-white">Know someone who needs this?</p>
+            <p className="text-neutral-500 text-xs mt-0.5">
+              {user.primaryRole === "WORKER"
+                ? "Invite them to find paying jobs nearby and get paid instantly via M-Pesa."
+                : "Invite them to hire trusted, verified workers nearby via M-Pesa."}
+            </p>
+          </div>
+        </div>
         <WhatsAppShareButton
           message={
             user.primaryRole === "WORKER"
