@@ -17,10 +17,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LinkMeApp — Find Work. Find Help. Get Paid.",
+  title: "LinkMeUp — Find Work. Find Help. Get Paid.",
   description:
     "The digital operating system for Kenya's informal economy. Find skilled workers or find work nearby, and get paid instantly via M-Pesa.",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "LinkMeApp" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "LinkMeUp" },
 };
 
 export const viewport: Viewport = {

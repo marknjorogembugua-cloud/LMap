@@ -25,6 +25,7 @@ export const emailSchema = z
 
 export const requestOtpSchema = z
   .object({
+    mode: z.enum(["signup", "login"]),
     phone: phoneSchema.optional(),
     email: emailSchema.optional(),
     primaryRole: z.enum(["WORKER", "CLIENT"]).optional(),
@@ -35,14 +36,19 @@ export const requestOtpSchema = z
 
 export const verifyOtpSchema = z
   .object({
+    mode: z.enum(["signup", "login"]),
     phone: phoneSchema.optional(),
     email: emailSchema.optional(),
     code: otpCodeSchema,
     primaryRole: z.enum(["WORKER", "CLIENT"]).optional(),
-    name: z.string().min(2).max(80).optional(),
+    name: nameSchema.optional(),
   })
   .refine((d) => (d.phone ? 1 : 0) + (d.email ? 1 : 0) >= 1, {
     message: "Provide either a phone number or an email address",
+  })
+  .refine((d) => d.mode !== "signup" || !!d.name, {
+    message: "Enter your name to sign up",
+    path: ["name"],
   });
 
 const latSchema = z.number().min(-90).max(90);

@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "LinkMeApp — Kenya's Informal Economy Platform",
-    short_name: "LinkMeApp",
+    name: "LinkMeUp — Kenya's Informal Economy Platform",
+    short_name: "LinkMeUp",
     description: "Find skilled workers or find work, near you. Get paid instantly via M-Pesa.",
     start_url: "/",
     display: "standalone",

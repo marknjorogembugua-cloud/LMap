@@ -108,8 +108,8 @@ export default function WorkerDetailView({
       <div className="flex items-center justify-between mb-3">
         <BackButton fallbackHref="/workers" className="" />
         <ShareButton
-          title={worker.user.name ?? "LinkMeApp worker"}
-          text={`${worker.user.name ?? "This worker"} · ${worker.category} on LinkMeApp`}
+          title={worker.user.name ?? "LinkMeUp worker"}
+          text={`${worker.user.name ?? "This worker"} · ${worker.category} on LinkMeUp`}
         />
       </div>
 
@@ -128,7 +128,7 @@ export default function WorkerDetailView({
             </div>
           )}
           <div>
-            <h1 className="text-2xl font-bold text-white">{worker.user.name ?? "LinkMeApp user"}</h1>
+            <h1 className="text-2xl font-bold text-white">{worker.user.name ?? "LinkMeUp user"}</h1>
             <p className="text-neutral-400 text-sm mt-1">
               {worker.category} · {worker.area}, {worker.county}
             </p>

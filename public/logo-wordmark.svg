@@ -2,9 +2,8 @@
   <g transform="translate(4,10)">
     <rect width="120" height="120" rx="27" fill="#dc2626"/>
     <g transform="scale(0.234375)">
-      <line x1="196" y1="328" x2="328" y2="196" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/>
-      <circle cx="188" cy="336" r="66" fill="#ffffff"/>
-      <circle cx="336" cy="188" r="66" fill="#ffffff"/>
+      <circle cx="212" cy="300" r="98" fill="#ffffff"/>
+      <circle cx="308" cy="212" r="86" fill="#ffffff"/>
     </g>
   </g>
   <text
@@ -14,5 +13,5 @@
     font-size="72"
     letter-spacing="-2.5"
     fill="#172554"
-  >linkmeapp</text>
+  >linkmeup</text>
 </svg>

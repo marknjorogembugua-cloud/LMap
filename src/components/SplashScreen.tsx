@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const WORDMARK = "linkmeapp";
+const WORDMARK = "linkmeup";
 const LETTER_START = 1.75;
 const LETTER_STAGGER = 0.09;
 
@@ -12,6 +12,7 @@ export default function SplashScreen() {
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reads matchMedia, only known client-side
       setVisible(false);
       return;
     }
@@ -45,29 +46,17 @@ export default function SplashScreen() {
             style={{ transformOrigin: "100px 100px" }}
             className="animate-[mark-spin-settle_0.6s_ease-in-out_0.75s_both]"
           >
-            <line
-              x1="76"
-              y1="128"
-              x2="128"
-              y2="76"
-              stroke="#dc2626"
-              strokeWidth="10"
-              strokeLinecap="round"
-              pathLength={1}
-              style={{ strokeDasharray: 1, strokeDashoffset: 1 }}
-              className="animate-[link-line-draw_0.3s_ease-out_1.35s_forwards]"
-            />
             <circle
-              cx="72"
-              cy="132"
-              r="26"
+              cx="85"
+              cy="115"
+              r="34"
               fill="#dc2626"
               className="opacity-0 animate-[dot-drop-left_0.7s_cubic-bezier(0.34,1.56,0.64,1)_0.1s_forwards]"
             />
             <circle
-              cx="132"
-              cy="72"
-              r="26"
+              cx="118"
+              cy="85"
+              r="30"
               fill="#dc2626"
               className="opacity-0 animate-[dot-drop-right_0.7s_cubic-bezier(0.34,1.56,0.64,1)_0.25s_forwards]"
             />

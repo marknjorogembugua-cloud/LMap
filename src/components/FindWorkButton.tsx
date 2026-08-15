@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type MouseEvent } from "react";
 
-const HREF = "/login?role=WORKER";
+const HREF = "/signup?role=WORKER";
 const ANIMATION_MS = 420;
 
 export default function FindWorkButton() {
@@ -88,7 +88,7 @@ export default function FindWorkButton() {
           />
         </g>
       </svg>
-      I want to find work
+      Find work
     </a>
   );
 }

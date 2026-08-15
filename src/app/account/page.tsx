@@ -254,7 +254,7 @@ export default function AccountPage() {
               onClick={startEditingName}
               className="group flex items-center gap-1.5 max-w-full active:opacity-70 transition"
             >
-              <p className="font-bold text-lg text-white truncate">{user.name ?? "LinkMeApp user"}</p>
+              <p className="font-bold text-lg text-white truncate">{user.name ?? "LinkMeUp user"}</p>
               <PencilIcon
                 className="w-3.5 h-3.5 text-neutral-500 shrink-0 group-active:scale-90 transition"
                 strokeWidth={2}

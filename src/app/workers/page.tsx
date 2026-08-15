@@ -157,7 +157,7 @@ export default function WorkersPage() {
                 <div className="flex-1 min-w-0 flex items-center justify-between">
                   <div>
                     <p className="font-semibold text-white flex items-center gap-1">
-                      {w.user.name ?? "LinkMeApp user"}
+                      {w.user.name ?? "LinkMeUp user"}
                       {w.verified && (
                         <CheckBadgeIcon
                           className="w-4 h-4 text-sky-400 shrink-0"

@@ -1,4 +1,4 @@
-# LinkMeApp
+# LinkMeUp
 
 The digital operating system for Kenya's informal economy — worker profiles (LinkedIn), gig matching (Uber), and instant M-Pesa payments, in one mobile-first PWA.
 
@@ -44,7 +44,7 @@ The digital operating system for Kenya's informal economy — worker profiles (L
 
 Already scaffolded with working local-dev defaults. Notable ones:
 
-- `DATABASE_URL` — points at the local `linkmeapp` Postgres role/db created above.
+- `DATABASE_URL` — points at the local `linkmeup` Postgres role/db created above.
 - `SMS_PROVIDER=console` — in dev, OTP codes are printed to the server terminal instead of sent by SMS. Watch the terminal running `npm run dev` when logging in. Switch to `africastalking` + fill `AFRICASTALKING_*` for real SMS delivery.
 - `MPESA_*` — Safaricom Daraja **sandbox** credentials. Sign up free at https://developer.safaricom.co.ke, create an app, and fill in `MPESA_CONSUMER_KEY` / `MPESA_CONSUMER_SECRET` / `MPESA_PASSKEY`. The default `MPESA_SHORTCODE=174379` is Safaricom's shared sandbox till.
 - `MPESA_CALLBACK_URL` — Safaricom needs a **publicly reachable** URL to POST payment results to. For local dev, run `ngrok http 3000` and set this to `https://<your-ngrok-subdomain>.ngrok.io/api/payments/mpesa/callback`.

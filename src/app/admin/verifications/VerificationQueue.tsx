@@ -81,7 +81,7 @@ function QueueCard({
     <li className="bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-4 shadow-lg shadow-black/30">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="font-semibold text-white text-sm">{profile.user.name ?? "LinkMeApp user"}</p>
+          <p className="font-semibold text-white text-sm">{profile.user.name ?? "LinkMeUp user"}</p>
           <p className="text-neutral-400 text-xs mt-0.5">
             {profile.category} · {profile.area}, {profile.county}
           </p>

@@ -15,17 +15,17 @@ import { useShowChrome } from "@/lib/use-chrome";
 import { useTap } from "@/lib/use-tap";
 
 const WORKER_ITEMS = [
-  { href: "/dashboard", label: "Home", icon: HomeIcon },
-  { href: "/jobs", label: "Jobs", icon: BriefcaseIcon },
-  { href: "/messages", label: "Messages", icon: ChatBubbleLeftRightIcon },
-  { href: "/account", label: "Account", icon: UserCircleIcon },
+  { href: "/dashboard", label: "Home", icon: HomeIcon, tourId: "nav-home" },
+  { href: "/jobs", label: "Jobs", icon: BriefcaseIcon, tourId: "nav-jobs" },
+  { href: "/messages", label: "Messages", icon: ChatBubbleLeftRightIcon, tourId: "nav-messages" },
+  { href: "/account", label: "Account", icon: UserCircleIcon, tourId: "nav-account" },
 ];
 
 const CLIENT_ITEMS = [
-  { href: "/dashboard", label: "Home", icon: HomeIcon },
-  { href: "/workers", label: "Workers", icon: UsersIcon },
-  { href: "/messages", label: "Messages", icon: ChatBubbleLeftRightIcon },
-  { href: "/account", label: "Account", icon: UserCircleIcon },
+  { href: "/dashboard", label: "Home", icon: HomeIcon, tourId: "nav-home" },
+  { href: "/workers", label: "Workers", icon: UsersIcon, tourId: "nav-workers" },
+  { href: "/messages", label: "Messages", icon: ChatBubbleLeftRightIcon, tourId: "nav-messages" },
+  { href: "/account", label: "Account", icon: UserCircleIcon, tourId: "nav-account" },
 ];
 
 export default function BottomNav() {
@@ -41,7 +41,16 @@ export default function BottomNav() {
     <nav className="fixed bottom-0 inset-x-0 z-40 bg-neutral-900/90 backdrop-blur-md border-t border-neutral-800 flex safe-area-bottom">
       {items.map((item) => {
         const active = pathname === item.href || pathname.startsWith(item.href + "/");
-        return <NavItem key={item.href} href={item.href} label={item.label} icon={item.icon} active={active} />;
+        return (
+          <NavItem
+            key={item.href}
+            href={item.href}
+            label={item.label}
+            icon={item.icon}
+            active={active}
+            tourId={item.tourId}
+          />
+        );
       })}
     </nav>
   );
@@ -52,17 +61,20 @@ function NavItem({
   label,
   icon: Icon,
   active,
+  tourId,
 }: {
   href: string;
   label: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   active: boolean;
+  tourId: string;
 }) {
   const { tapKey, bump } = useTap();
   return (
     <Link
       href={href}
       onClick={bump}
+      data-tour={tourId}
       className={`relative flex-1 flex flex-col items-center gap-1 py-2.5 text-[11px] transition-colors ${
         active ? "text-brand font-semibold" : "text-neutral-400"
       }`}

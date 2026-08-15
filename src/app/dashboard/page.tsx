@@ -3,15 +3,18 @@ import Link from "next/link";
 import {
   BriefcaseIcon,
   UsersIcon,
+  UserGroupIcon,
   DocumentPlusIcon,
   ChevronRightIcon,
   StarIcon,
   CheckBadgeIcon,
+  BanknotesIcon,
 } from "@heroicons/react/24/outline";
 import type { ComponentType, SVGProps } from "react";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import StatTile from "@/components/StatTile";
+import FeatureTour from "@/components/FeatureTour";
 
 type HeroIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -47,6 +50,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="relative px-6 py-8 max-w-md mx-auto w-full overflow-hidden">
+      <FeatureTour role={user.primaryRole} />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -top-32 -right-24 w-72 h-72 bg-brand/15 rounded-full blur-3xl"
@@ -101,12 +105,41 @@ export default async function DashboardPage() {
             icon={BriefcaseIcon}
             title="Find jobs"
             subtitle={`${liveGigCount} open near you`}
+            tourId="card-jobs"
           />
+          <div className="grid grid-cols-2 gap-3">
+            <PrimaryCard
+              href="/network"
+              icon={UserGroupIcon}
+              title="My network"
+              subtitle="Past clients"
+              tourId="card-network"
+            />
+            <PrimaryCard
+              href="/revenue"
+              icon={BanknotesIcon}
+              title="Revenue"
+              subtitle="Track earnings"
+              tourId="card-revenue"
+            />
+          </div>
         </div>
       ) : (
         <div className="relative grid grid-cols-2 gap-3">
-          <PrimaryCard href="/workers" icon={UsersIcon} title="Hire someone" subtitle="Browse workers" />
-          <PrimaryCard href="/jobs/new" icon={DocumentPlusIcon} title="Post a job" subtitle="Get help fast" />
+          <PrimaryCard
+            href="/workers"
+            icon={UsersIcon}
+            title="Hire someone"
+            subtitle="Browse workers"
+            tourId="card-workers"
+          />
+          <PrimaryCard
+            href="/jobs/new"
+            icon={DocumentPlusIcon}
+            title="Post a job"
+            subtitle="Get help fast"
+            tourId="card-post-job"
+          />
         </div>
       )}
     </main>
@@ -118,15 +151,18 @@ function PrimaryCard({
   icon: Icon,
   title,
   subtitle,
+  tourId,
 }: {
   href: string;
   icon: HeroIcon;
   title: string;
   subtitle: string;
+  tourId: string;
 }) {
   return (
     <Link
       href={href}
+      data-tour={tourId}
       className="group relative bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-5 flex flex-col gap-4 shadow-lg shadow-black/30 active:scale-[0.98] transition"
     >
       <span className="flex items-center justify-center w-11 h-11 rounded-xl bg-brand/10 text-brand">

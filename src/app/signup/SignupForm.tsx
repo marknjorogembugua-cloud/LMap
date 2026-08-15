@@ -2,24 +2,37 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { BriefcaseIcon, UsersIcon } from "@heroicons/react/24/outline";
 import { useSession } from "@/lib/use-session";
 
-type Step = "identifier" | "otp";
+type Step = "role" | "details" | "otp";
 type Method = "phone" | "email";
+type Role = "WORKER" | "CLIENT";
 
-export default function LoginForm() {
+export default function SignupForm() {
   const router = useRouter();
   const { refresh } = useSession();
+  const searchParams = useSearchParams();
+  const presetRole = searchParams.get("role");
+  const initialRole: Role | null =
+    presetRole === "WORKER" || presetRole === "CLIENT" ? presetRole : null;
 
-  const [step, setStep] = useState<Step>("identifier");
+  const [role, setRole] = useState<Role | null>(initialRole);
+  const [step, setStep] = useState<Step>(initialRole ? "details" : "role");
   const [method, setMethod] = useState<Method>("phone");
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [devCode, setDevCode] = useState<string | null>(null);
+
+  function chooseRole(next: Role) {
+    setRole(next);
+    setStep("details");
+  }
 
   function switchMethod(next: Method) {
     setMethod(next);
@@ -35,7 +48,9 @@ export default function LoginForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
-          method === "phone" ? { mode: "login", phone } : { mode: "login", email }
+          method === "phone"
+            ? { mode: "signup", phone, primaryRole: role }
+            : { mode: "signup", email, primaryRole: role }
         ),
       });
       const data = await res.json();
@@ -59,7 +74,9 @@ export default function LoginForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
-          method === "phone" ? { mode: "login", phone, code } : { mode: "login", email, code }
+          method === "phone"
+            ? { mode: "signup", phone, code, name, primaryRole: role }
+            : { mode: "signup", email, code, name, primaryRole: role }
         ),
       });
       const data = await res.json();
@@ -67,7 +84,7 @@ export default function LoginForm() {
 
       await refresh();
 
-      if (data.user.primaryRole === "WORKER" && !data.user.workerProfile) {
+      if (role === "WORKER") {
         router.push("/onboarding/worker");
       } else {
         router.push("/dashboard");
@@ -79,9 +96,9 @@ export default function LoginForm() {
     }
   }
 
-  function backToIdentifier() {
+  function backToDetails() {
     setDevCode(null);
-    setStep("identifier");
+    setStep("details");
   }
 
   return (
@@ -89,18 +106,61 @@ export default function LoginForm() {
       <div className="text-center mb-8">
         {/* eslint-disable-next-line @next/next/no-img-element -- static SVG mark, no need for next/image optimization */}
         <img src="/logo-wordmark-light.svg" alt="LinkMeUp" className="h-7 mx-auto mb-5" />
-        <h1 className="text-2xl font-bold text-white">Welcome back</h1>
+        <h1 className="text-2xl font-bold text-white">
+          {step === "role"
+            ? "Get started"
+            : role === "WORKER"
+              ? "Find work near you"
+              : "Find help near you"}
+        </h1>
         <p className="text-neutral-400 text-sm mt-1">
-          {step === "identifier"
-            ? method === "phone"
-              ? "Enter your phone number to log in"
-              : "Enter your email to log in"
-            : "Enter the code we sent you"}
+          {step === "role"
+            ? "What are you here to do?"
+            : step === "details"
+              ? "Create your account"
+              : "Enter the code we sent you"}
         </p>
       </div>
 
-      {step === "identifier" ? (
+      {step === "role" && (
+        <div className="flex flex-col gap-3">
+          <button
+            type="button"
+            onClick={() => chooseRole("WORKER")}
+            className="flex items-center gap-3 bg-brand text-white font-bold rounded-2xl py-4 px-5 shadow-lg shadow-brand/20 active:scale-[0.98] transition"
+          >
+            <BriefcaseIcon className="w-5 h-5 shrink-0" strokeWidth={2} />
+            <span className="text-left">
+              <span className="block text-base">Find work</span>
+              <span className="block text-xs font-normal text-white/80">I want to get hired</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => chooseRole("CLIENT")}
+            className="flex items-center gap-3 border border-neutral-700 text-white font-bold rounded-2xl py-4 px-5 active:scale-[0.98] transition"
+          >
+            <UsersIcon className="w-5 h-5 shrink-0" strokeWidth={2} />
+            <span className="text-left">
+              <span className="block text-base">Hire someone</span>
+              <span className="block text-xs font-normal text-neutral-400">I want to post jobs</span>
+            </span>
+          </button>
+        </div>
+      )}
+
+      {step === "details" && (
         <form onSubmit={requestOtp} className="flex flex-col gap-4">
+          <input
+            type="text"
+            placeholder="Your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            minLength={2}
+            maxLength={80}
+            className="border border-neutral-700 bg-neutral-900 text-white placeholder:text-neutral-500 rounded-xl px-4 py-3.5 text-lg focus:outline-none focus:ring-2 focus:ring-brand"
+          />
           {method === "phone" ? (
             <input
               type="tel"
@@ -137,8 +197,19 @@ export default function LoginForm() {
           >
             {method === "phone" ? "Use email instead" : "Use phone instead"}
           </button>
+          {!initialRole && (
+            <button
+              type="button"
+              onClick={() => setStep("role")}
+              className="text-neutral-500 text-sm font-medium"
+            >
+              Back
+            </button>
+          )}
         </form>
-      ) : (
+      )}
+
+      {step === "otp" && (
         <form onSubmit={verifyOtp} className="flex flex-col gap-4">
           {devCode && (
             <p className="text-amber-400 text-sm bg-amber-950/40 border border-amber-800 rounded-lg px-3 py-2">
@@ -161,20 +232,22 @@ export default function LoginForm() {
             disabled={loading}
             className="bg-brand text-white font-semibold rounded-xl shadow-lg shadow-brand/20 py-3.5 disabled:opacity-60"
           >
-            {loading ? "Verifying..." : "Continue"}
+            {loading ? "Verifying..." : "Create account"}
           </button>
-          <button type="button" onClick={backToIdentifier} className="text-brand text-sm font-medium">
+          <button type="button" onClick={backToDetails} className="text-brand text-sm font-medium">
             {method === "phone" ? "Change phone number" : "Change email address"}
           </button>
         </form>
       )}
 
-      <p className="text-center text-neutral-500 text-sm mt-8">
-        New to LinkMeUp?{" "}
-        <Link href="/signup" className="text-brand font-medium">
-          Sign up
-        </Link>
-      </p>
+      {step !== "otp" && (
+        <p className="text-center text-neutral-500 text-sm mt-8">
+          Already have an account?{" "}
+          <Link href="/login" className="text-brand font-medium">
+            Log in
+          </Link>
+        </p>
+      )}
     </main>
   );
 }

@@ -12,7 +12,7 @@ export async function sendEmail(to: string, subject: string, text: string): Prom
     await axios.post(
       "https://api.resend.com/emails",
       {
-        from: process.env.EMAIL_FROM ?? "LinkMeApp <onboarding@resend.dev>",
+        from: process.env.EMAIL_FROM ?? "LinkMeUp <onboarding@resend.dev>",
         to,
         subject,
         text,

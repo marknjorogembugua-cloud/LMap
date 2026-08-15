@@ -100,7 +100,7 @@ export default function JobDetailView({ id, initialJob }: { id: string; initialJ
 
       <div className="relative flex items-center justify-between mb-3">
         <BackButton fallbackHref="/jobs" className="" />
-        <ShareButton title={job.title} text={`${job.title} · ${job.category} on LinkMeApp`} />
+        <ShareButton title={job.title} text={`${job.title} · ${job.category} on LinkMeUp`} />
       </div>
 
       <div className="relative bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-5 shadow-lg shadow-black/30">

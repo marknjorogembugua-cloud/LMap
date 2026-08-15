@@ -28,6 +28,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid or expired code" }, { status: 400 });
   }
 
+  if (parsed.data.mode === "login" && !user) {
+    return NextResponse.json(
+      { error: "No account found for that contact — sign up first" },
+      { status: 400 }
+    );
+  }
+  if (parsed.data.mode === "signup" && user) {
+    return NextResponse.json(
+      { error: "An account already exists for that contact — log in instead" },
+      { status: 400 }
+    );
+  }
+
   if (!user) {
     if (channel === "EMAIL") {
       try {

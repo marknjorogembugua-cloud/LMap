@@ -13,7 +13,7 @@ function generateCode(): string {
 export async function issueOtp(identifier: string, channel: OtpChannel): Promise<{ devCode?: string }> {
   const code = generateCode();
   const expiresAt = new Date(Date.now() + EXP_MINUTES * 60 * 1000);
-  const message = `Your LinkMeApp verification code is ${code}. It expires in ${EXP_MINUTES} minutes.`;
+  const message = `Your LinkMeUp verification code is ${code}. It expires in ${EXP_MINUTES} minutes.`;
 
   await prisma.otpCode.create({ data: { identifier, channel, code, expiresAt } });
 
@@ -25,7 +25,7 @@ export async function issueOtp(identifier: string, channel: OtpChannel): Promise
   if (channel === "PHONE") {
     await sendSms(identifier, message);
   } else {
-    await sendEmail(identifier, "Your LinkMeApp verification code", message);
+    await sendEmail(identifier, "Your LinkMeUp verification code", message);
   }
 
   // No real SMS/email provider configured: surface the code so it's usable

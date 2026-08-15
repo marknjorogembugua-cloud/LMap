@@ -29,10 +29,10 @@ async function getWorker(id: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const worker = await getWorker(id);
-  if (!worker) return { title: "Worker not found — LinkMeApp" };
+  if (!worker) return { title: "Worker not found — LinkMeUp" };
 
-  const name = worker.user.name ?? "A LinkMeApp worker";
-  const title = `${name} · ${worker.category} — LinkMeApp`;
+  const name = worker.user.name ?? "A LinkMeUp worker";
+  const title = `${name} · ${worker.category} — LinkMeUp`;
   const description =
     worker.bio?.trim() ||
     `${worker.category} in ${worker.area}, ${worker.county}${
