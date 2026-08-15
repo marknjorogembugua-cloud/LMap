@@ -37,7 +37,7 @@ export default function NotificationBell() {
       href="/notifications"
       onClick={bump}
       aria-label={count > 0 ? `Notifications, ${count} unread` : "Notifications"}
-      className="fixed top-3 right-3 z-40 flex items-center justify-center w-10 h-10 rounded-full bg-neutral-900/90 backdrop-blur-md border border-neutral-800 text-neutral-300 active:scale-[0.96] transition"
+      className="fixed top-[calc(0.75rem+env(safe-area-inset-top))] right-3 z-40 flex items-center justify-center w-10 h-10 rounded-full bg-neutral-900/90 backdrop-blur-md border border-neutral-800 text-neutral-300 active:scale-[0.96] transition"
     >
       <BellIcon key={tapKey} className="w-5 h-5 animate-icon-pop" strokeWidth={1.75} />
       {count > 0 && (

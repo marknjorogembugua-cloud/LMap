@@ -7,5 +7,9 @@ import { useShowChrome } from "@/lib/use-chrome";
 export default function PageShell({ children }: { children: ReactNode }) {
   const showChrome = useShowChrome();
 
-  return <div className={`flex-1 ${showChrome ? "pb-16" : ""}`}>{children}</div>;
+  return (
+    <div className={`flex-1 ${showChrome ? "pb-[calc(4rem+env(safe-area-inset-bottom))]" : ""}`}>
+      {children}
+    </div>
+  );
 }
