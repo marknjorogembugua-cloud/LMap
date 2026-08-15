@@ -187,6 +187,7 @@ export default function WorkerOnboardingPage() {
         dailyRateKes: dailyRateKes ? Number(dailyRateKes) : undefined,
         experienceYears: experienceYears ? Number(experienceYears) : undefined,
       });
+      await refresh();
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -206,6 +207,7 @@ export default function WorkerOnboardingPage() {
         dailyRateKes: dailyRateKes ? Number(dailyRateKes) : undefined,
         experienceYears: experienceYears ? Number(experienceYears) : undefined,
       });
+      await refresh();
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
