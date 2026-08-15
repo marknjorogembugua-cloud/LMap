@@ -14,6 +14,7 @@ import { StarIcon } from "@heroicons/react/24/solid";
 import { StarIcon as StarOutlineIcon } from "@heroicons/react/24/outline";
 import StatusBadge from "@/components/StatusBadge";
 import BackButton from "@/components/BackButton";
+import WhatsAppShareButton from "@/components/WhatsAppShareButton";
 import { useSession } from "@/lib/use-session";
 import { useTap } from "@/lib/use-tap";
 
@@ -475,7 +476,20 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
           </form>
         )}
         {booking.status === "COMPLETED" && alreadyReviewed && (
-          <p className="text-neutral-400 text-sm text-center">Thanks for your review!</p>
+          <>
+            <p className="text-neutral-400 text-sm text-center">Thanks for your review!</p>
+            <div className="bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-4 shadow-lg shadow-black/30">
+              <p className="text-sm font-medium text-white">Know someone who needs this?</p>
+              <p className="text-neutral-400 text-xs mt-0.5 mb-3">Share LinkMeUp with them on WhatsApp.</p>
+              <WhatsAppShareButton
+                message={
+                  isWorker
+                    ? "I've been finding paying jobs nearby on LinkMeUp and getting paid instantly via M-Pesa. Check it out:"
+                    : "I've been hiring trusted workers nearby on LinkMeUp — verified, and I only pay once the job's done. Check it out:"
+                }
+              />
+            </div>
+          </>
         )}
 
         {terminal && <p className="text-neutral-400 text-sm text-center">This conversation was {booking.status.toLowerCase()}.</p>}

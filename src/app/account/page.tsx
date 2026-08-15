@@ -23,6 +23,7 @@ import { useSession } from "@/lib/use-session";
 import { useTap } from "@/lib/use-tap";
 import { pushSupported, subscribeToPush } from "@/lib/push-client";
 import StatTile from "@/components/StatTile";
+import WhatsAppShareButton from "@/components/WhatsAppShareButton";
 
 type WorkerStats = {
   totalEarnedKes: number;
@@ -388,6 +389,22 @@ export default function AccountPage() {
           </Link>
         </div>
       )}
+
+      <div className="relative mt-6 bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-4 shadow-lg shadow-black/30">
+        <p className="text-sm font-medium text-white">Know someone who needs this?</p>
+        <p className="text-neutral-400 text-xs mt-0.5 mb-3">
+          {user.primaryRole === "WORKER"
+            ? "Invite them to find paying jobs nearby and get paid instantly via M-Pesa."
+            : "Invite them to hire trusted, verified workers nearby via M-Pesa."}
+        </p>
+        <WhatsAppShareButton
+          message={
+            user.primaryRole === "WORKER"
+              ? "I've been finding paying jobs nearby on LinkMeUp and getting paid instantly via M-Pesa. Check it out:"
+              : "I've been hiring trusted workers nearby on LinkMeUp — verified, and I only pay once the job's done. Check it out:"
+          }
+        />
+      </div>
 
       <button
         onClick={() => {
